@@ -1,0 +1,24 @@
+services:
+  absp:
+    build:
+      context: .
+      dockerfile_inline: |
+        FROM alpine:3
+        RUN apk add deno ffmpeg uv
+        RUN mkdir -p /app
+        WORKDIR /app
+        COPY main.py /app/main.py
+        COPY pyproject.toml /app/pyproject.toml
+        RUN uv sync
+        CMD ["uv", "run", "main.py", "--srv"]
+    restart: unless-stopped
+    environment:
+      PYTHONUNBUFFERED: true
+      WORKDIR: /work
+    networks:
+      - absp
+    volumes:
+      - /mnt/audiobookshelf/podcasts:/work
+
+networks:
+  absp:
